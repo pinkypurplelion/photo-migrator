@@ -5,10 +5,13 @@
 # 4. Otherwise, move image/data file to new directory
 
 
-# import OS module
+# module imports
 import os
 import shutil
 import json
+import piexif
+
+
 # This is my path
 path = "raw"
 
@@ -32,12 +35,15 @@ for (root, dirs, file) in files:
 print(data_files)
 print(media_files)
 
+print("Modifying images...")
 for f in media_files:
     if f + '.json' in data_files:
         print(f + '.json')
         print("Found a match:", f)
         media_data = json.load(open(os.path.join('raw', f + '.json'))) # change to data dir for production
         print(media_data)
+        exif_dict = piexif.load(os.path.join('raw', f)) # change to media dir for production
+        print(exif_dict)
 
 
 # for (root, dirs, file) in media_files:
