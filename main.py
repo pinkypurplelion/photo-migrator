@@ -81,7 +81,7 @@ def degToDmsRational(deg_float):
 
 print("Modifying images...")
 for f in media_files:
-    if '.heic' not in f.lower() and f + '.json' in data_files:
+    if '.jpg' in f.lower() and f + '.json' in data_files:
         print(f + '.json')
         print("Found a match:", f)
         media_data = json.load(open(os.path.join('data', f + '.json'))) # change to data dir for production
@@ -110,8 +110,8 @@ for f in media_files:
 
         shutil.move(os.path.join('media', f), os.path.join('final', 'media', f))
         shutil.move(os.path.join('data', f + '.json'), os.path.join('final', 'data', f + '.json'))
-    elif '.heic' in f:
-        print("Skipping HEIC file:", f)
+    else:
+        print("No match found for:", f)
 
 
 
