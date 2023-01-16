@@ -33,6 +33,7 @@ data_files = []
 media_files = []
 
 # Walks the media & data files and adds any existing files
+print("Walking the media & data files and adding any existing files")
 path_media_files = os.walk(PATH_MEDIA)
 path_data_files = os.walk(PATH_DATA)
 for (root, dirs, file) in path_media_files:
@@ -49,17 +50,21 @@ for (root, dirs, file) in path_data_files:
         else:
             media_files.append(f)
 
+print(f"Existing files: data - {len(data_files)}, media - {len(media_files)}")
 
 # Will separate the images and data files into separate folders (PATH_DATA & PATH_MEDIA) from the PATH_RAW directory
 print("Separating images and data files...")
 for (root, dirs, file) in path_raw_files:
     for f in file:
+        if '.zip' in f:
+            print("Skipping zip file: ", f)
+            continue
         if '.json' in f:
-            shutil.move(os.path.join(root, f), os.path.join('data', root + '-' + f))
-            data_files.append(root + '-' + f)
+            shutil.move(os.path.join(root, f), os.path.join('data', root.replace('/', '-') + '-' + f))
+            data_files.append(root.replace('/', '-') + '-' + f)
         else:
-            shutil.move(os.path.join(root, f), os.path.join('media', root + '-' + f))
-            media_files.append(root + '-' + f)
+            shutil.move(os.path.join(root, f), os.path.join('media', root.replace('/', '-') + '-' + f))
+            media_files.append(root.replace('/', '-') + '-' + f)
 
 
 
