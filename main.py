@@ -32,17 +32,6 @@ path_raw_files = os.walk(PATH_RAW)
 data_files = []
 media_files = []
 
-# Will separate the images and data files into separate folders (PATH_DATA & PATH_MEDIA) from the PATH_RAW directory
-print("Separating images and data files...")
-for (root, dirs, file) in path_raw_files:
-    for f in file:
-        if '.json' in f:
-            shutil.move(os.path.join(root, f), os.path.join('data', f))
-            data_files.append(f)
-        else:
-            shutil.move(os.path.join(root, f), os.path.join('media', f))
-            media_files.append(f)
-
 # Walks the media & data files and adds any existing files
 path_media_files = os.walk(PATH_MEDIA)
 path_data_files = os.walk(PATH_DATA)
@@ -59,6 +48,20 @@ for (root, dirs, file) in path_data_files:
             data_files.append(f)
         else:
             media_files.append(f)
+
+
+# Will separate the images and data files into separate folders (PATH_DATA & PATH_MEDIA) from the PATH_RAW directory
+print("Separating images and data files...")
+for (root, dirs, file) in path_raw_files:
+    for f in file:
+        if '.json' in f:
+            shutil.move(os.path.join(root, f), os.path.join('data', root + '-' + f))
+            data_files.append(root + '-' + f)
+        else:
+            shutil.move(os.path.join(root, f), os.path.join('media', root + '-' + f))
+            media_files.append(root + '-' + f)
+
+
 
 
 print(data_files)
@@ -91,8 +94,8 @@ for f in media_files:
         print(data_title, data_photo_time, data_location)
 
         exif_dict = piexif.load(os.path.join('media', f)) # change to media dir for production
-        print(piexif.dump(exif_dict))
-        print(exif_dict)
+        #print(piexif.dump(exif_dict))
+        #print(exif_dict)
         exif_dict['0th'][270] = data_title
         dt = datetime.datetime.fromtimestamp(int(data_photo_time['timestamp']))
         dt_str = dt.strftime("%y:%m:%d %H:%M:%S")
@@ -104,12 +107,13 @@ for f in media_files:
         exif_dict['GPS'][piexif.GPSIFD.GPSLatitude] = degToDmsRational(data_location['latitude'])
         exif_dict['GPS'][piexif.GPSIFD.GPSLongitude] = degToDmsRational(data_location['longitude'])
 
-        print(exif_dict)
+        #print(exif_dict)
         exif_bytes = piexif.dump(exif_dict)
         piexif.insert(exif_bytes, os.path.join('media', f))
 
         shutil.move(os.path.join('media', f), os.path.join('final', 'media', f))
         shutil.move(os.path.join('data', f + '.json'), os.path.join('final', 'data', f + '.json'))
+        print("Modified image data and moved to final directory: ", f)
     else:
         print("No match found for:", f)
 
