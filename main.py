@@ -89,6 +89,7 @@ def degToDmsRational(deg_float):
 
 print("Modifying images...")
 for f in media_files:
+    # Will modify JPG files
     if '.jpg' in f.lower() and f + '.json' in data_files:
         print(f + '.json')
         print("Found a match:", f)
@@ -119,8 +120,12 @@ for f in media_files:
         shutil.move(os.path.join('media', f), os.path.join('final', 'media', f))
         shutil.move(os.path.join('data', f + '.json'), os.path.join('final', 'data', f + '.json'))
         print("Modified image data and moved to final directory: ", f)
-    else:
-        print("No match found for:", f)
+    # if '.heic' in f.lower() and f + '.json' in data_files:
+    #     media_data = json.load(open(os.path.join('data', f + '.json'))) # change to data dir for production
+    #     exif_dict = piexif.load(os.path.join('media', f)) # change to media dir for production
+
+    #else:
+        #print("No match found for:", f)
 
 
 
