@@ -18,6 +18,7 @@ import json
 import piexif
 import datetime
 import math
+import filedate
 
 
 # This is my path
@@ -69,8 +70,8 @@ for (root, dirs, file) in path_raw_files:
 
 
 
-print(data_files)
-print(media_files)
+# print(data_files)
+# print(media_files)
 
 def degToDmsRational(deg_float):
     minFloat = deg_float % 1 * 60
@@ -116,6 +117,31 @@ for f in media_files:
         #print(exif_dict)
         exif_bytes = piexif.dump(exif_dict)
         piexif.insert(exif_bytes, os.path.join('media', f))
+
+        shutil.move(os.path.join('media', f), os.path.join('final', 'media', f))
+        shutil.move(os.path.join('data', f + '.json'), os.path.join('final', 'data', f + '.json'))
+        print("Modified image data and moved to final directory: ", f)
+
+    if ('.mp4' in f.lower() or '.mov' in f.lower()) and f + '.json' in data_files:
+        File_Date = filedate.File(os.path.join('media', f))
+
+        # Get file date
+        File_Date.get()
+
+        media_data = json.load(open(os.path.join('data', f + '.json')))  # change to data dir for production
+        # data_title = media_data.get('title', '')
+        data_photo_time = media_data.get('photoTakenTime', '')
+
+        dt = datetime.datetime.fromtimestamp(int(data_photo_time['timestamp']))
+        dt_str = dt.strftime("%d.%m.%Y %H:%M")
+        print('Modifying file: ', f, dt_str)
+
+        # Set file date
+        File_Date.set(
+            created=dt_str,
+            modified=dt_str,
+            accessed=dt_str
+        )
 
         shutil.move(os.path.join('media', f), os.path.join('final', 'media', f))
         shutil.move(os.path.join('data', f + '.json'), os.path.join('final', 'data', f + '.json'))
