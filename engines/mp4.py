@@ -1,12 +1,15 @@
 import filedate
-import shutil
 import os
 import json
 import datetime
 
+from engines.util import move_completed_files
+
 SUPPORTED_FILE_TYPES = ['mp4', 'mov']
 
+
 def process_image(media_path, data_path, final_path, file):
+    print(f"Running process_image for file: {file} with supported file types: {SUPPORTED_FILE_TYPES}")
     file_date = filedate.File(os.path.join(media_path, file))
 
     # Get file date
@@ -27,7 +30,4 @@ def process_image(media_path, data_path, final_path, file):
         accessed=dt_str
     )
 
-    shutil.move(os.path.join(media_path, file), os.path.join(final_path, 'media', file))
-    shutil.move(os.path.join(data_path, file + '.json'), os.path.join('final', 'data', file + '.json'))
-    print("Modified image data and moved to final directory: ", file)
-    print('t')
+    move_completed_files(media_path, data_path, final_path, file)

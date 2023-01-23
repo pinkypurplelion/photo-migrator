@@ -11,17 +11,12 @@
 #
 
 import engines.mp4 as mp4
+import engines.jpg as jpg
 
 
 # module imports
 import os
 import shutil
-import json
-import piexif
-import datetime
-import math
-import filedate
-
 
 # This is my path
 PATH_RAW = "raw"
@@ -72,59 +67,11 @@ for (root, dirs, file) in path_raw_files:
             media_files.append(root.replace('/', '-') + '-' + f)
 
 
-
-
-# print(data_files)
-# print(media_files)
-
-def degToDmsRational(deg_float):
-    minFloat = deg_float % 1 * 60
-    secFloat = minFloat % 1 * 60
-    deg = math.floor(deg_float)
-    min = math.floor(minFloat)
-    sec = round(secFloat * 100)
-
-    deg = abs(deg) * 1
-    min = abs(min) * 1
-    sec = abs(sec) * 1
-
-    return ((deg, 1), (min, 1), (sec, 100))
-
-
-
 print("Modifying images...")
 for f in media_files:
     # Will modify JPG files
     if '.jpg' in f.lower() and f + '.json' in data_files:
-        print(f + '.json')
-        print("Found a match:", f)
-        media_data = json.load(open(os.path.join('data', f + '.json'))) # change to data dir for production
-        data_title = media_data.get('title', '')
-        data_photo_time = media_data.get('photoTakenTime', '')
-        data_location = media_data.get('geoData', '')
-        print(data_title, data_photo_time, data_location)
-
-        exif_dict = piexif.load(os.path.join('media', f)) # change to media dir for production
-        #print(piexif.dump(exif_dict))
-        #print(exif_dict)
-        exif_dict['0th'][270] = data_title
-        dt = datetime.datetime.fromtimestamp(int(data_photo_time['timestamp']))
-        dt_str = dt.strftime("%y:%m:%d %H:%M:%S")
-        exif_dict['0th'][306] = dt_str
-        exif_dict['Exif'][36867] = dt_str
-        exif_dict['Exif'][36868] = dt_str
-        exif_dict['GPS'][piexif.GPSIFD.GPSLatitudeRef] = 'N'
-        exif_dict['GPS'][piexif.GPSIFD.GPSLongitudeRef] = 'E'
-        exif_dict['GPS'][piexif.GPSIFD.GPSLatitude] = degToDmsRational(data_location['latitude'])
-        exif_dict['GPS'][piexif.GPSIFD.GPSLongitude] = degToDmsRational(data_location['longitude'])
-
-        #print(exif_dict)
-        exif_bytes = piexif.dump(exif_dict)
-        piexif.insert(exif_bytes, os.path.join('media', f))
-
-        shutil.move(os.path.join('media', f), os.path.join('final', 'media', f))
-        shutil.move(os.path.join('data', f + '.json'), os.path.join('final', 'data', f + '.json'))
-        print("Modified image data and moved to final directory: ", f)
+        jpg.process_image(PATH_MEDIA, PATH_DATA, PATH_FINAL, f)
 
     if bool([ft for ft in mp4.SUPPORTED_FILE_TYPES if (ft in f.lower())]) and f + '.json' in data_files:
         mp4.process_image(PATH_MEDIA, PATH_DATA, PATH_FINAL, f)
