@@ -21,3 +21,7 @@ def move_completed_files(media_path, data_path, final_path, file):
     shutil.move(os.path.join(media_path, file), os.path.join(final_path, 'media', file))
     shutil.move(os.path.join(data_path, file + '.json'), os.path.join('final', 'data', file + '.json'))
     print("Modified image data and moved to final directory: ", file)
+
+
+def supports_file(file, supported_files, data_files):
+    return bool([ft for ft in supported_files if (ft in file.lower())]) and file + '.json' in data_files
