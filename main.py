@@ -10,6 +10,8 @@
 #
 #
 
+import engines.mp4 as mp4
+
 
 # module imports
 import os
@@ -26,6 +28,8 @@ PATH_RAW = "raw"
 PATH_DATA = "data"
 PATH_MEDIA = "media"
 PATH_FINAL = "final"
+
+FUNCTIONS = [mp4.process_image]
 
 # to store files in a list
 path_raw_files = os.walk(PATH_RAW)
@@ -122,30 +126,9 @@ for f in media_files:
         shutil.move(os.path.join('data', f + '.json'), os.path.join('final', 'data', f + '.json'))
         print("Modified image data and moved to final directory: ", f)
 
-    if ('.mp4' in f.lower() or '.mov' in f.lower()) and f + '.json' in data_files:
-        File_Date = filedate.File(os.path.join('media', f))
+    if bool([ft for ft in mp4.SUPPORTED_FILE_TYPES if (ft in f.lower())]) and f + '.json' in data_files:
+        mp4.process_image(PATH_MEDIA, PATH_DATA, PATH_FINAL, f)
 
-        # Get file date
-        File_Date.get()
-
-        media_data = json.load(open(os.path.join('data', f + '.json')))  # change to data dir for production
-        # data_title = media_data.get('title', '')
-        data_photo_time = media_data.get('photoTakenTime', '')
-
-        dt = datetime.datetime.fromtimestamp(int(data_photo_time['timestamp']))
-        dt_str = dt.strftime("%d.%m.%Y %H:%M")
-        print('Modifying file: ', f, dt_str)
-
-        # Set file date
-        File_Date.set(
-            created=dt_str,
-            modified=dt_str,
-            accessed=dt_str
-        )
-
-        shutil.move(os.path.join('media', f), os.path.join('final', 'media', f))
-        shutil.move(os.path.join('data', f + '.json'), os.path.join('final', 'data', f + '.json'))
-        print("Modified image data and moved to final directory: ", f)
     # if '.heic' in f.lower() and f + '.json' in data_files:
     #     media_data = json.load(open(os.path.join('data', f + '.json'))) # change to data dir for production
     #     exif_dict = piexif.load(os.path.join('media', f)) # change to media dir for production
